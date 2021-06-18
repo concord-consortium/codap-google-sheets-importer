@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import "./codap.css";
 import "./App.css";
 import { initializePlugin, createTableWithDataset } from "codap-phone";
 import { useInput } from "./hooks";
@@ -21,14 +22,19 @@ export default function App() {
     gapi.load("client:auth2:picker", onClientLoad);
   }, []);
 
+  const [error, setError] = useState<string>("");
   const [chosenSpreadsheet, setChosenSpreadsheet] =
     useState<Required<gapi.client.sheets.Spreadsheet> | null>(null);
-  const [chosenSheet, chosenSheetChange, setChosenSheet] =
-    useInput<string, HTMLSelectElement>("");
+  const [chosenSheet, chosenSheetChange, setChosenSheet] = useInput<
+    string,
+    HTMLSelectElement
+  >("", () => setError(""));
   const [useHeader, setUseHeader] = useState<boolean>(false);
   const [useCustomRange, setUseCustomRange] = useState<boolean>(false);
-  const [customRange, customRangeChange, setCustomRange] =
-    useInput<string, HTMLInputElement>("");
+  const [customRange, customRangeChange, setCustomRange] = useInput<
+    string,
+    HTMLInputElement
+  >("", () => setError(""));
 
   function resetState() {
     setChosenSpreadsheet(null);
@@ -95,23 +101,21 @@ export default function App() {
 
   async function importSheet() {
     if (chosenSpreadsheet === null) {
-      console.log("No chosen spreadsheet!");
+      setError("Please choose a spreadsheet.");
       return;
     }
 
     const range = useCustomRange ? customRange : chosenSheet;
 
     if (range === "") {
-      console.log("No range");
-      console.log(customRange);
-      console.log(chosenSheet);
+      setError("Please select a valid range.");
       return;
     }
 
     const data = await getDataFromSheet(chosenSpreadsheet.spreadsheetId, range);
 
     if (data.length === 0) {
-      console.log("No data");
+      setError("Specified range is empty.");
       return;
     }
 
@@ -162,6 +166,11 @@ export default function App() {
     setUseHeader(!useHeader);
   }
 
+  function clearErrorAnd(f: () => void) {
+    setError("");
+    f();
+  }
+
   return chosenSpreadsheet !== null ? (
     <>
       <div className="input-group">
@@ -184,20 +193,26 @@ export default function App() {
           type="radio"
           id="all"
           checked={!useCustomRange}
-          onClick={() => setUseCustomRange(false)}
+          onClick={() => clearErrorAnd(() => setUseCustomRange(false))}
         />
         <label htmlFor="all">All values</label>
         <br />
-        <input type="radio" checked={useCustomRange} />
+        <input
+          type="radio"
+          checked={useCustomRange}
+          onClick={() => clearErrorAnd(() => setUseCustomRange(true))}
+        />
         <input
           type="text"
+          placeholder="A1:C6"
           value={customRange}
-          onFocus={() => setUseCustomRange(true)}
+          onFocus={() => clearErrorAnd(() => setUseCustomRange(true))}
           onChange={customRangeChange}
         />
       </div>
 
       <div className="input-group">
+        <h3>Column Names</h3>
         <input
           type="checkbox"
           id="useHeader"
@@ -206,8 +221,15 @@ export default function App() {
         />
         <label htmlFor="useHeader">Use first row as column names</label>
       </div>
-      <button onClick={importSheet}>Import</button>
-      <button onClick={cancelImport}>Cancel</button>
+      <div id="submit-buttons" className="input-group">
+        <button onClick={importSheet}>Import</button>
+        <button onClick={cancelImport}>Cancel</button>
+      </div>
+      {error !== "" && (
+        <div className="error">
+          <p>{error}</p>
+        </div>
+      )}
     </>
   ) : (
     <></>

@@ -1,7 +1,12 @@
+/* Make picker fill up whole plugin */
 .picker {
   box-sizing: border-box;
   height: 100% !important;
   width: 100% !important;
   top: 0 !important;
   left: 0 !important;
+}
+
+#submit-buttons button {
+  margin-right: 5px;
 }
