@@ -5,20 +5,25 @@ import { initializePlugin, createTableWithDataset } from "codap-phone";
 import { useInput } from "./hooks";
 import { getDataFromSheet } from "./util";
 
+// This identifies us to Google APIs. Not a secret.
 const CLIENT_ID =
   "756054504415-rf57dsh2mt5vqk1sovptbpopcacctred.apps.googleusercontent.com";
 const DISCOVERY_DOCS = [
   "https://sheets.googleapis.com/$discovery/rest?version=v4",
 ];
+
+// Lets us see all of the user's spreadsheets, which means that all thumbnails
+// will be available in the picker.
 const scope = "https://www.googleapis.com/auth/spreadsheets.readonly";
 
+const PLUGIN_TITLE = "Google Sheets Importer";
 const PLUGIN_WIDTH = 500;
 const PLUGIN_HEIGHT = 700;
 
 export default function App() {
   // Load Google APIs upon mounting
   useEffect(() => {
-    initializePlugin("Google Sheets Importer", PLUGIN_WIDTH, PLUGIN_HEIGHT);
+    initializePlugin(PLUGIN_TITLE, PLUGIN_WIDTH, PLUGIN_HEIGHT);
     gapi.load("client:auth2:picker", onClientLoad);
   }, []);
 
