@@ -3,7 +3,7 @@ import "./codap.css";
 import "./App.css";
 import { initializePlugin, createTableWithDataset } from "codap-phone";
 import { useInput } from "./hooks";
-import { getDataFromSheet } from "./util";
+import { createPicker, getDataFromSheet } from "./util";
 
 // This identifies us to Google APIs. Not a secret.
 const CLIENT_ID =
@@ -34,7 +34,7 @@ export default function App() {
     string,
     HTMLSelectElement
   >("", () => setError(""));
-  const [useHeader, setUseHeader] = useState<boolean>(false);
+  const [useHeader, setUseHeader] = useState<boolean>(true);
   const [useCustomRange, setUseCustomRange] = useState<boolean>(false);
   const [customRange, customRangeChange, setCustomRange] = useInput<
     string,
@@ -63,24 +63,11 @@ export default function App() {
 
   async function loginAndCreatePicker() {
     const GoogleAuth = gapi.auth2.getAuthInstance();
-    if (GoogleAuth.isSignedIn.get()) {
-      const currentUser = GoogleAuth.currentUser.get();
-      createPicker(currentUser.getAuthResponse().access_token);
-    } else {
-      const response = await GoogleAuth.signIn();
-      createPicker(response.getAuthResponse().access_token);
-    }
-  }
-
-  function createPicker(token: string) {
-    const picker = new google.picker.PickerBuilder()
-      .setOAuthToken(token)
-      .addView(google.picker.ViewId.SPREADSHEETS)
-      .enableFeature(google.picker.Feature.NAV_HIDDEN)
-      .hideTitleBar()
-      .setCallback(makePickerCallback(token))
-      .build();
-    picker.setVisible(true);
+    const currentUser = GoogleAuth.isSignedIn.get()
+      ? GoogleAuth.currentUser.get()
+      : await GoogleAuth.signIn();
+    const token = currentUser.getAuthResponse().access_token;
+    createPicker(token, makePickerCallback(token));
   }
 
   function makePickerCallback(token: string) {
@@ -110,14 +97,23 @@ export default function App() {
       return;
     }
 
-    const range = useCustomRange ? customRange : chosenSheet;
-
-    if (range === "") {
+    if (useCustomRange && customRange === "") {
       setError("Please select a valid range.");
       return;
     }
 
-    const data = await getDataFromSheet(chosenSpreadsheet.spreadsheetId, range);
+    const range = useCustomRange
+      ? `${chosenSheet}!${customRange}`
+      : chosenSheet;
+
+    let data;
+
+    try {
+      data = await getDataFromSheet(chosenSpreadsheet.spreadsheetId, range);
+    } catch (e) {
+      setError(e.message);
+      return;
+    }
 
     if (data.length === 0) {
       setError("Specified range is empty.");
