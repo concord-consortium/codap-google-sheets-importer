@@ -3326,8 +3326,10 @@ coa@^2.0.2:
     chalk "^2.4.1"
     q "^1.1.2"
 
-codap-phone@../codap-phone:
-  version "0.0.1"
+codap-phone@^0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/codap-phone/-/codap-phone-0.1.1.tgz#97cc0462aedbd26efdf5bb805ca3cdd7872f2189"
+  integrity sha512-HQHj8TDXZWiWbwQWuxARC+WLCbdt9julcF+5yHx52Dz7AHd+NW5LBRV5/OaYcRPkotMSjEb48I3k1NB1aPHQAg==
   dependencies:
     iframe-phone "^1.3.1"
 
