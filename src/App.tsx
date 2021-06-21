@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import "./codap.css";
 import "./App.css";
 import { initializePlugin, createTableWithDataset } from "codap-phone";
@@ -21,12 +21,6 @@ const PLUGIN_WIDTH = 500;
 const PLUGIN_HEIGHT = 700;
 
 export default function App() {
-  // Load Google APIs upon mounting
-  useEffect(() => {
-    initializePlugin(PLUGIN_TITLE, PLUGIN_WIDTH, PLUGIN_HEIGHT);
-    gapi.load("client:auth2:picker", onClientLoad);
-  }, []);
-
   const [error, setError] = useState<string>("");
   const [chosenSpreadsheet, setChosenSpreadsheet] =
     useState<Required<gapi.client.sheets.Spreadsheet> | null>(null);
@@ -41,36 +35,7 @@ export default function App() {
     HTMLInputElement
   >("", () => setError(""));
 
-  function resetState() {
-    setChosenSpreadsheet(null);
-    setChosenSheet("");
-    setUseHeader(false);
-    setUseCustomRange(false);
-    setCustomRange("");
-  }
-
-  // Authenticate user so we can read their spreadsheets. This will pop up
-  // a Google login window.
-  async function onClientLoad() {
-    gapi.client.init({
-      discoveryDocs: DISCOVERY_DOCS,
-      clientId: CLIENT_ID,
-      scope,
-    });
-
-    await loginAndCreatePicker();
-  }
-
-  async function loginAndCreatePicker() {
-    const GoogleAuth = gapi.auth2.getAuthInstance();
-    const currentUser = GoogleAuth.isSignedIn.get()
-      ? GoogleAuth.currentUser.get()
-      : await GoogleAuth.signIn();
-    const token = currentUser.getAuthResponse().access_token;
-    createPicker(token, makePickerCallback(token));
-  }
-
-  function makePickerCallback(token: string) {
+  const makePickerCallback = useCallback((token: string) => {
     return async (response: google.picker.ResponseObject) => {
       if (
         response[google.picker.Response.ACTION] === google.picker.Action.PICKED
@@ -89,6 +54,41 @@ export default function App() {
         }
       }
     };
+  }, [setChosenSheet]);
+
+  const loginAndCreatePicker = useCallback(async () => {
+    const GoogleAuth = gapi.auth2.getAuthInstance();
+    const currentUser = GoogleAuth.isSignedIn.get()
+      ? GoogleAuth.currentUser.get()
+      : await GoogleAuth.signIn();
+    const token = currentUser.getAuthResponse().access_token;
+    createPicker(token, makePickerCallback(token));
+  }, [makePickerCallback]);
+
+  // Authenticate user so we can read their spreadsheets. This will pop up
+  // a Google login window.
+  const onClientLoad = useCallback(async () => {
+    gapi.client.init({
+      discoveryDocs: DISCOVERY_DOCS,
+      clientId: CLIENT_ID,
+      scope,
+    });
+
+    await loginAndCreatePicker();
+  }, [loginAndCreatePicker]);
+
+  // Load Google APIs upon mounting
+  useEffect(() => {
+    initializePlugin(PLUGIN_TITLE, PLUGIN_WIDTH, PLUGIN_HEIGHT);
+    gapi.load("client:auth2:picker", onClientLoad);
+  }, [onClientLoad]);
+
+  function resetState() {
+    setChosenSpreadsheet(null);
+    setChosenSheet("");
+    setUseHeader(false);
+    setUseCustomRange(false);
+    setCustomRange("");
   }
 
   async function importSheet() {
