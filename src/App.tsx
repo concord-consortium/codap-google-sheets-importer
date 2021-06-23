@@ -43,11 +43,9 @@ export default function App() {
           google.picker.Action.PICKED
         ) {
           const doc = response[google.picker.Response.DOCUMENTS][0];
-          console.log(doc);
           const sheet = (
             await gapi.client.sheets.spreadsheets.get({ spreadsheetId: doc.id })
           ).result;
-          console.log(sheet);
           setChosenSpreadsheet(
             sheet as Required<gapi.client.sheets.Spreadsheet>
           );
