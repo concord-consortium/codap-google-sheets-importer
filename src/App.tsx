@@ -35,26 +35,32 @@ export default function App() {
     HTMLInputElement
   >("", () => setError(""));
 
-  const makePickerCallback = useCallback((token: string) => {
-    return async (response: google.picker.ResponseObject) => {
-      if (
-        response[google.picker.Response.ACTION] === google.picker.Action.PICKED
-      ) {
-        const doc = response[google.picker.Response.DOCUMENTS][0];
-        console.log(doc);
-        const sheet = (
-          await gapi.client.sheets.spreadsheets.get({ spreadsheetId: doc.id })
-        ).result;
-        console.log(sheet);
-        setChosenSpreadsheet(sheet as Required<gapi.client.sheets.Spreadsheet>);
+  const makePickerCallback = useCallback(
+    (token: string) => {
+      return async (response: google.picker.ResponseObject) => {
+        if (
+          response[google.picker.Response.ACTION] ===
+          google.picker.Action.PICKED
+        ) {
+          const doc = response[google.picker.Response.DOCUMENTS][0];
+          console.log(doc);
+          const sheet = (
+            await gapi.client.sheets.spreadsheets.get({ spreadsheetId: doc.id })
+          ).result;
+          console.log(sheet);
+          setChosenSpreadsheet(
+            sheet as Required<gapi.client.sheets.Spreadsheet>
+          );
 
-        // Set first sheet as chosen
-        if (sheet.sheets && sheet.sheets.length > 0) {
-          setChosenSheet(sheet.sheets[0].properties?.title as string);
+          // Set first sheet as chosen
+          if (sheet.sheets && sheet.sheets.length > 0) {
+            setChosenSheet(sheet.sheets[0].properties?.title as string);
+          }
         }
-      }
-    };
-  }, [setChosenSheet]);
+      };
+    },
+    [setChosenSheet]
+  );
 
   const loginAndCreatePicker = useCallback(async () => {
     const GoogleAuth = gapi.auth2.getAuthInstance();
@@ -224,10 +230,12 @@ export default function App() {
         />
         <label htmlFor="useHeader">Use first row as column names</label>
       </div>
+
       <div id="submit-buttons" className="input-group">
         <button onClick={importSheet}>Import</button>
         <button onClick={cancelImport}>Cancel</button>
       </div>
+
       {error !== "" && (
         <div className="error">
           <p>{error}</p>

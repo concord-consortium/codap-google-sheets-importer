@@ -21,8 +21,8 @@ input {
   padding: 3px 3px 3px 6px;
 }
 
-input[type=radio],
-input[type=checkbox] {
+input[type="radio"],
+input[type="checkbox"] {
   margin-right: 5px;
 }
 
@@ -33,7 +33,7 @@ select {
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
 
@@ -64,11 +64,11 @@ button:hover {
 }
 
 .error {
-    margin-top: 10px;
-    background-color: #ffeeee;
-    padding: 6px;
-    border: solid 1px red;
-    border-radius: 5px;
+  margin-top: 10px;
+  background-color: #ffeeee;
+  padding: 6px;
+  border: solid 1px red;
+  border-radius: 5px;
 }
 
 .error p {
