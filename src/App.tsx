@@ -168,8 +168,10 @@ export default function App() {
   }
 
   function clearErrorAnd(f: () => void) {
-    setError("");
-    f();
+    return () => {
+      setError("");
+      f();
+    };
   }
 
   return chosenSpreadsheet !== null ? (
@@ -194,20 +196,20 @@ export default function App() {
           type="radio"
           id="all"
           checked={!useCustomRange}
-          onClick={() => clearErrorAnd(() => setUseCustomRange(false))}
+          onClick={clearErrorAnd(() => setUseCustomRange(false))}
         />
         <label htmlFor="all">All values</label>
         <br />
         <input
           type="radio"
           checked={useCustomRange}
-          onClick={() => clearErrorAnd(() => setUseCustomRange(true))}
+          onClick={clearErrorAnd(() => setUseCustomRange(true))}
         />
         <input
           type="text"
           placeholder="A1:C6"
           value={customRange}
-          onFocus={() => clearErrorAnd(() => setUseCustomRange(true))}
+          onFocus={clearErrorAnd(() => setUseCustomRange(true))}
           onChange={customRangeChange}
         />
       </div>
