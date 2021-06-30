@@ -3,7 +3,7 @@ import "./codap.css";
 import "./App.css";
 import { initializePlugin, createTableWithDataset } from "codap-phone";
 import { useInput } from "./hooks";
-import { createPicker, getDataFromSheet } from "./util";
+import { createPicker, getDataFromSheet, makeDataset } from "./util";
 
 // This identifies us to Google APIs. Not a secret.
 const CLIENT_ID =
@@ -146,27 +146,8 @@ export default function App() {
       attributeNames = data[0].map((_value, index) => `Column ${index}`);
       dataRows = data;
     }
-    const attributes = attributeNames.map((name) => ({ name }));
-    const records = dataRows.map((row) =>
-      attributeNames.reduce(
-        (acc: Record<string, unknown>, name: string, i: number) => {
-          acc[name] = row[i];
-          return acc;
-        },
-        {}
-      )
-    );
     await createTableWithDataset(
-      {
-        collections: [
-          {
-            name: "Cases",
-            labels: {},
-            attrs: attributes,
-          },
-        ],
-        records,
-      },
+      makeDataset(attributeNames, dataRows),
       chosenSpreadsheet.properties.title
     );
     resetState();

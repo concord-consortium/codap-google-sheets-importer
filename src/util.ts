@@ -1,3 +1,5 @@
+import { Dataset } from "codap-phone";
+
 /**
  * Make rows in 2D array all have the same length by filling rows that are
  * not long enough with empty string.
@@ -58,4 +60,30 @@ export function createPicker(
     .setCallback(callback)
     .build();
   picker.setVisible(true);
+}
+
+export function makeDataset(
+  attributeNames: string[],
+  dataRows: unknown[][]
+): Dataset {
+  const attributes = attributeNames.map((name) => ({ name }));
+  const records = dataRows.map((row) =>
+    attributeNames.reduce(
+      (acc: Record<string, unknown>, name: string, i: number) => {
+        acc[name] = row[i];
+        return acc;
+      },
+      {}
+    )
+  );
+  return {
+    collections: [
+      {
+        name: "Cases",
+        labels: {},
+        attrs: attributes,
+      },
+    ],
+    records,
+  };
 }
