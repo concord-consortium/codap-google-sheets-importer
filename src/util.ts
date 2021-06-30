@@ -47,9 +47,12 @@ export function createPicker(
   token: string,
   callback: (r: google.picker.ResponseObject) => void
 ) {
+  const view = new google.picker.DocsView(google.picker.ViewId.SPREADSHEETS);
+  view.setMode(google.picker.DocsViewMode.LIST);
+
   const picker = new google.picker.PickerBuilder()
     .setOAuthToken(token)
-    .addView(google.picker.ViewId.SPREADSHEETS)
+    .addView(view)
     .enableFeature(google.picker.Feature.NAV_HIDDEN)
     .hideTitleBar()
     .setCallback(callback)

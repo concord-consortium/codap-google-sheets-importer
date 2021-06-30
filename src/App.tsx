@@ -12,9 +12,11 @@ const DISCOVERY_DOCS = [
   "https://sheets.googleapis.com/$discovery/rest?version=v4",
 ];
 
-// Lets us see all of the user's spreadsheets, which means that all thumbnails
-// will be available in the picker.
-const scope = "https://www.googleapis.com/auth/spreadsheets.readonly";
+// This scope is not restricted or sensitive, which means we do not have to get
+// the app verified. The downside is that users will not be able to see
+// thumbnails of private spreadsheets, but we hide this fact by presenting the
+// list view.
+const scope = "https://www.googleapis.com/auth/drive.file";
 
 const PLUGIN_TITLE = "Google Sheets Importer";
 const PLUGIN_WIDTH = 500;
