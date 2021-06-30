@@ -64,6 +64,9 @@ export default function App() {
 
   const loginAndCreatePicker = useCallback(async () => {
     const GoogleAuth = gapi.auth2.getAuthInstance();
+
+    // Authenticate user so we can read their spreadsheets. This will pop up
+    // a Google login window.
     const currentUser = GoogleAuth.isSignedIn.get()
       ? GoogleAuth.currentUser.get()
       : await GoogleAuth.signIn();
@@ -71,8 +74,6 @@ export default function App() {
     createPicker(token, makePickerCallback(token));
   }, [makePickerCallback]);
 
-  // Authenticate user so we can read their spreadsheets. This will pop up
-  // a Google login window.
   const onClientLoad = useCallback(async () => {
     gapi.client.init({
       discoveryDocs: DISCOVERY_DOCS,
