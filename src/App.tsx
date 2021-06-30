@@ -92,7 +92,7 @@ export default function App() {
   function resetState() {
     setChosenSpreadsheet(null);
     setChosenSheet("");
-    setUseHeader(false);
+    setUseHeader(true);
     setUseCustomRange(false);
     setCustomRange("");
   }
