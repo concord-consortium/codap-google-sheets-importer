@@ -86,8 +86,15 @@ export default function App() {
 
   // Load Google APIs upon mounting
   useEffect(() => {
-    initializePlugin(PLUGIN_TITLE, PLUGIN_WIDTH, PLUGIN_HEIGHT);
-    gapi.load("client:auth2:picker", onClientLoad);
+    (async () => {
+      try {
+        await initializePlugin(PLUGIN_TITLE, PLUGIN_WIDTH, PLUGIN_HEIGHT);
+      } catch (e) {
+        setError("This plugin must be used within CODAP.");
+        return;
+      }
+      gapi.load("client:auth2:picker", onClientLoad);
+    })();
   }, [onClientLoad]);
 
   function resetState() {
@@ -181,69 +188,72 @@ export default function App() {
     };
   }
 
-  return chosenSpreadsheet !== null ? (
+  return (
     <>
-      <div className="input-group">
-        <h3>Select a Sheet</h3>
-        <select value={chosenSheet} onChange={chosenSheetChange}>
-          {chosenSpreadsheet.sheets.map((sheet) => (
-            <option
-              key={sheet.properties?.index}
-              value={sheet.properties?.title}
-            >
-              {sheet.properties?.title}
-            </option>
-          ))}
-        </select>
-      </div>
+      {chosenSpreadsheet !== null ? (
+        <>
+          <div className="input-group">
+            <h3>Select a Sheet</h3>
+            <select value={chosenSheet} onChange={chosenSheetChange}>
+              {chosenSpreadsheet.sheets.map((sheet) => (
+                <option
+                  key={sheet.properties?.index}
+                  value={sheet.properties?.title}
+                >
+                  {sheet.properties?.title}
+                </option>
+              ))}
+            </select>
+          </div>
 
-      <div className="input-group">
-        <h3>Range to Import</h3>
-        <input
-          type="radio"
-          id="all"
-          checked={!useCustomRange}
-          onClick={clearErrorAnd(() => setUseCustomRange(false))}
-        />
-        <label htmlFor="all">All values</label>
-        <br />
-        <input
-          type="radio"
-          checked={useCustomRange}
-          onClick={clearErrorAnd(() => setUseCustomRange(true))}
-        />
-        <input
-          type="text"
-          placeholder="A1:C6"
-          value={customRange}
-          onFocus={clearErrorAnd(() => setUseCustomRange(true))}
-          onChange={customRangeChange}
-        />
-      </div>
+          <div className="input-group">
+            <h3>Range to Import</h3>
+            <input
+              type="radio"
+              id="all"
+              checked={!useCustomRange}
+              onClick={clearErrorAnd(() => setUseCustomRange(false))}
+            />
+            <label htmlFor="all">All values</label>
+            <br />
+            <input
+              type="radio"
+              checked={useCustomRange}
+              onClick={clearErrorAnd(() => setUseCustomRange(true))}
+            />
+            <input
+              type="text"
+              placeholder="A1:C6"
+              value={customRange}
+              onFocus={clearErrorAnd(() => setUseCustomRange(true))}
+              onChange={customRangeChange}
+            />
+          </div>
 
-      <div className="input-group">
-        <h3>Column Names</h3>
-        <input
-          type="checkbox"
-          id="useHeader"
-          onChange={toggleHeader}
-          checked={useHeader}
-        />
-        <label htmlFor="useHeader">Use first row as column names</label>
-      </div>
+          <div className="input-group">
+            <h3>Column Names</h3>
+            <input
+              type="checkbox"
+              id="useHeader"
+              onChange={toggleHeader}
+              checked={useHeader}
+            />
+            <label htmlFor="useHeader">Use first row as column names</label>
+          </div>
 
-      <div id="submit-buttons" className="input-group">
-        <button onClick={importSheet}>Import</button>
-        <button onClick={cancelImport}>Cancel</button>
-      </div>
-
+          <div id="submit-buttons" className="input-group">
+            <button onClick={importSheet}>Import</button>
+            <button onClick={cancelImport}>Cancel</button>
+          </div>
+        </>
+      ) : (
+        <></>
+      )}
       {error !== "" && (
         <div className="error">
           <p>{error}</p>
         </div>
       )}
     </>
-  ) : (
-    <></>
   );
 }
