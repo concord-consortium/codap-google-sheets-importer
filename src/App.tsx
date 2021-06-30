@@ -37,8 +37,8 @@ export default function App() {
     HTMLInputElement
   >("", () => setError(""));
 
-  const makePickerCallback = useCallback(
-    (token: string) => {
+  const loginAndCreatePicker = useCallback(async () => {
+    function makePickerCallback(token: string) {
       return async (response: google.picker.ResponseObject) => {
         if (
           response[google.picker.Response.ACTION] ===
@@ -56,13 +56,16 @@ export default function App() {
           if (sheet.sheets && sheet.sheets.length > 0) {
             setChosenSheet(sheet.sheets[0].properties?.title as string);
           }
+        } else if (
+          response[google.picker.Response.ACTION] ===
+          google.picker.Action.CANCEL
+        ) {
+          // Show picker again if cancelled
+          loginAndCreatePicker();
         }
       };
-    },
-    [setChosenSheet]
-  );
+    }
 
-  const loginAndCreatePicker = useCallback(async () => {
     const GoogleAuth = gapi.auth2.getAuthInstance();
 
     // Authenticate user so we can read their spreadsheets. This will pop up
@@ -72,7 +75,7 @@ export default function App() {
       : await GoogleAuth.signIn();
     const token = currentUser.getAuthResponse().access_token;
     createPicker(token, makePickerCallback(token));
-  }, [makePickerCallback]);
+  }, [setChosenSheet]);
 
   const onClientLoad = useCallback(async () => {
     gapi.client.init({
