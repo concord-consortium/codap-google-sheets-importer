@@ -10,3 +10,8 @@
 #submit-buttons button {
   margin-right: 5px;
 }
+
+#column-selector-row {
+  display: flex;
+  flex-direction: row;
+}
